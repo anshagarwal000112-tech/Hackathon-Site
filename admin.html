@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Admin Panel - Disaster Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid #ef4444;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #ef4444;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .subtitle {
+            color: #cbd5e1;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: 2px solid #ef4444;
+            color: #f1f5f9;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .nav-tab.active {
+            background: #ef4444;
+            color: #0f172a;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .panel {
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .panel h2 {
+            color: #ef4444;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #38bdf8;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 2px solid #38bdf8;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #7dd3fc;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #f87070, #ef4444);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #38bdf8;
+            color: #38bdf8;
+        }
+
+        .btn-secondary:hover {
+            background: #38bdf8;
+            color: #0f172a;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            background: rgba(74, 222, 128, 0.2);
+            border: 2px solid #4ade80;
+            color: #86efac;
+        }
+
+        .alert.error {
+            background: rgba(248, 112, 112, 0.2);
+            border: 2px solid #f87070;
+            color: #fca5a5;
+        }
+
+        .alert.info {
+            background: rgba(56, 189, 248, 0.2);
+            border: 2px solid #38bdf8;
+            color: #7dd3fc;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #334155;
+            color: #38bdf8;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ef4444;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        tr:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            border: none;
+        }
+
+        .btn-delete:hover {
+            background: #f87070;
+        }
+
+        .btn-edit {
+            background: #38bdf8;
+            border: none;
+            color: #0f172a;
+        }
+
+        .btn-edit:hover {
+            background: #7dd3fc;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .status-critical {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .status-warning {
+            background: rgba(251, 146, 60, 0.3);
+            color: #fed7aa;
+        }
+
+        .status-moderate {
+            background: rgba(251, 191, 36, 0.3);
+            color: #fde047;
+        }
+
+        .status-safe {
+            background: rgba(74, 222, 128, 0.3);
+            color: #86efac;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ef4444;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            color: #ef4444;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+        }
+
+        .modal-close:hover {
+            color: #fca5a5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid #38bdf8;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #38bdf8;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .auth-check {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid #38bdf8;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #cbd5e1;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #38bdf8;
+        }
+
+        .recommendations-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .recommendations-input input {
+            flex: 1;
+        }
+
+        .recommendations-input button {
+            padding: 10px 15px;
+            width: auto;
+        }
+
+        .recommendations-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .recommendations-list li {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid #38bdf8;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .recommendations-list button {
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+
+        .success-message {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+            border-top: 2px solid #ef4444;
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Admin Control Panel</h1>
+            <p class="subtitle">Manage Disaster Predictions & Override Data</p>
+        </header>
+
+        <!-- Authentication -->
+        <div class="panel">
+            <div class="form-group">
+                <label for="adminPassword">🔐 Admin Password (Set & Verify):</label>
+                <div class="form-row">
+                    <input type="password" id="adminPassword" placeholder="Enter admin password">
+                    <button onclick="verifyAdminPassword()">🔓 Authenticate</button>
+                </div>
+            </div>
+            <div id="authAlert" class="alert"></div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('override')">✏️ Override Predictions</button>
+            <button class="nav-tab" onclick="switchTab('manual')">📝 Manual Entry</button>
+            <button class="nav-tab" onclick="switchTab('history')">📜 History</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Overrides Today</div>
+                    <div class="stat-value" id="totalOverrides">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">States Updated</div>
+                    <div class="stat-value" id="statesUpdated">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Critical Alerts</div>
+                    <div class="stat-value" id="criticalAlerts">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Predictions</div>
+                    <div class="stat-value" id="activePredictions">0</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📋 Current Overrides</h2>
+                <div class="table-container">
+                    <table id="overridesTable">
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>Disaster Type</th>
+                                <th>Risk Level</th>
+                                <th>Override %</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #94a3b8;">No overrides yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Override Predictions Tab -->
+        <div id="override" class="tab-content">
+            <div class="panel">
+                <h2>✏️ Override Existing Prediction</h2>
+                <div class="alert info">
+                    💡 Manually override AI predictions with your own risk assessment
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="overrideState">📍 Select State:</label>
+                        <select id="overrideState">
+                            <option value="">-- Choose State --</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="overrideDisaster">🌍 Disaster Type:</label>
+                        <select id="overrideDisaster">
+                            <option value="">-- Choose Type --</option>
+                            <option value="flood">🌊 Flood</option>
+                            <option value="heatwave">🔥 Heatwave</option>
+                            <option value="earthquake">🪨 Earthquake</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="overridePercentage">⚠️ Risk Percentage (0-100):</label>
+                    <input type="number" id="overridePercentage" min="0" max="100" value="50" placeholder="Enter risk %">
+                </div>
+
+                <div class="form-group">
+                    <label for="overrideHFScore">🤗 HF Semantic Score (0-1):</label>
+                    <input type="number" id="overrideHFScore" min="0" max="1" step="0.01" value="0.5" placeholder="0.00 to 1.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="overrideConfidence">🎯 Confidence Level (0-1):</label>
+                    <input type="number" id="overrideConfidence" min="0" max="1" step="0.01" value="0.85" placeholder="0.00 to 1.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="overrideReason">📝 Reason for Override:</label>
+                    <textarea id="overrideReason" placeholder="Explain why this override is necessary..."></textarea>
+                </div>
+
+                <button onclick="submitOverride()" style="width: 100%;">💾 Save Override</button>
+                <div id="overrideAlert" class="alert"></div>
+            </div>
+        </div>
+
+        <!-- Manual Entry Tab -->
+        <div id="manual" class="tab-content">
+            <div class="panel">
+                <h2>📝 Manual Prediction Entry</h2>
+                <div class="alert info">
+                    💡 Create a complete manual prediction with all parameters
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manualState">📍 Select State:</label>
+                        <select id="manualState">
+                            <option value="">-- Choose State --</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="manualDisaster">🌍 Disaster Type:</label>
+                        <select id="manualDisaster">
+                            <option value="">-- Choose Type --</option>
+                            <option value="flood">🌊 Flood</option>
+                            <option value="heatwave">🔥 Heatwave</option>
+                            <option value="earthquake">🪨 Earthquake</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manualTemp">🌡️ Temperature (°C):</label>
+                        <input type="number" id="manualTemp" value="25" placeholder="e.g., 28.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualHumidity">💧 Humidity (%):</label>
+                        <input type="number" id="manualHumidity" min="0" max="100" value="70" placeholder="0-100">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualRainfall">🌧️ Rainfall (mm):</label>
+                        <input type="number" id="manualRainfall" value="0" placeholder="e.g., 50">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manualRiskPercent">⚠️ Risk Percentage (0-100):</label>
+                        <input type="number" id="manualRiskPercent" min="0" max="100" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualHFScore">🤗 HF Score (0-1):</label>
+                        <input type="number" id="manualHFScore" min="0" max="1" step="0.01" value="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualConfidence">🎯 Confidence (0-1):</label>
+                        <input type="number" id="manualConfidence" min="0" max="1" step="0.01" value="0.85">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>📋 Recommendations:</label>
+                    <div class="recommendations-input">
+                        <input type="text" id="newRecommendation" placeholder="Add recommendation...">
+                        <button onclick="addRecommendation()" class="btn-small">➕</button>
+                    </div>
+                    <ul class="recommendations-list" id="recommendationsList"></ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="manualNotes">📝 Additional Notes:</label>
+                    <textarea id="manualNotes" placeholder="Any additional context or information..."></textarea>
+                </div>
+
+                <button onclick="submitManualPrediction()" style="width: 100%;">💾 Save Manual Prediction</button>
+                <div id="manualAlert" class="alert"></div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <div class="panel">
+                <h2>📜 Override History</h2>
+                <div class="table-container">
+                    <table id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>State</th>
+                                <th>Type</th>
+                                <th>Risk %</th>
+                                <th>Reason</th>
+                                <th>Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #94a3b8;">No history yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🛡️ Secure Admin Panel | 🔐 Password Protected | 📊 Disaster Management System</p>
+            <p>Last sync: <span id="lastSync">Never</span></p>
+        </div>
+    </div>
+
+    <div class="auth-check">
+        Status: <span id="authStatus">🔒 Not Authenticated</span>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const API_BASE = "hackathon-production-79bd.up.railway.app";
+        const ADMIN_PASSWORD = "Tinker@123"; // Change this!
+        let isAuthenticated = false;
+        let overridesData = [];
+        let historyData = [];
+        let recommendationsList = [];
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        function verifyAdminPassword() {
+            const password = document.getElementById("adminPassword").value;
+            const alertBox = document.getElementById("authAlert");
+
+            if (!password) {
+                showAlert(alertBox, "Please enter a password", "error");
+                return;
+            }
+
+            if (password === ADMIN_PASSWORD) {
+                isAuthenticated = true;
+                showAlert(alertBox, "✅ Authentication successful!", "success");
+                document.getElementById("authStatus").innerHTML = "🔓 Authenticated";
+                document.getElementById("adminPassword").disabled = true;
+                loadDashboardData();
+            } else {
+                showAlert(alertBox, "❌ Incorrect password", "error");
+                isAuthenticated = false;
+                document.getElementById("authStatus").innerHTML = "🔒 Not Authenticated";
+            }
+        }
+
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        function switchTab(tabName) {
+            document.querySelectorAll(".tab-content").forEach(tab => {
+                tab.classList.remove("active");
+            });
+            document.querySelectorAll(".nav-tab").forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+            document.getElementById(tabName).classList.add("active");
+            event.target.classList.add("active");
+        }
+
+        // ============================================
+        // OVERRIDE SUBMISSION
+        // ============================================
+        function submitOverride() {
+            if (!isAuthenticated) {
+                showAlert(document.getElementById("overrideAlert"), "❌ Please authenticate first", "error");
+                return;
+            }
+
+            const state = document.getElementById("overrideState").value;
+            const disaster = document.getElementById("overrideDisaster").value;
+            const percentage = parseFloat(document.getElementById("overridePercentage").value);
+            const hfScore = parseFloat(document.getElementById("overrideHFScore").value);
+            const confidence = parseFloat(document.getElementById("overrideConfidence").value);
+            const reason = document.getElementById("overrideReason").value;
+
+            if (!state || !disaster) {
+                showAlert(document.getElementById("overrideAlert"), "❌ Please select state and disaster type", "error");
+                return;
+            }
+
+            const override = {
+                id: Date.now(),
+                state: state,
+                disaster: disaster,
+                risk_percentage: percentage,
+                hf_semantic_score: hfScore,
+                confidence: confidence,
+                reason: reason,
+                timestamp: new Date().toLocaleString(),
+                admin: "Admin"
+            };
+
+            overridesData.push(override);
+            historyData.push(override);
+
+            localStorage.setItem("overrides", JSON.stringify(overridesData));
+            localStorage.setItem("history", JSON.stringify(historyData));
+
+            showAlert(document.getElementById("overrideAlert"), "✅ Override saved successfully!", "success");
+
+            // Clear form
+            document.getElementById("overrideState").value = "";
+            document.getElementById("overrideDisaster").value = "";
+            document.getElementById("overridePercentage").value = "50";
+            document.getElementById("overrideHFScore").value = "0.5";
+            document.getElementById("overrideConfidence").value = "0.85";
+            document.getElementById("overrideReason").value = "";
+
+            updateDashboard();
+        }
+
+        // ============================================
+        // MANUAL PREDICTION SUBMISSION
+        // ============================================
+        function addRecommendation() {
+            const input = document.getElementById("newRecommendation");
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            recommendationsList.push(text);
+            updateRecommendationsList();
+            input.value = "";
+        }
+
+        function updateRecommendationsList() {
+            const list = document.getElementById("recommendationsList");
+            list.innerHTML = "";
+
+            recommendationsList.forEach((rec, index) => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <span>${rec}</span>
+                    <button class="btn-small btn-delete" onclick="removeRecommendation(${index})">✕</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function removeRecommendation(index) {
+            recommendationsList.splice(index, 1);
+            updateRecommendationsList();
+        }
+
+        function submitManualPrediction() {
+            if (!isAuthenticated) {
+                showAlert(document.getElementById("manualAlert"), "❌ Please authenticate first", "error");
+                return;
+            }
+
+            const state = document.getElementById("manualState").value;
+            const disaster = document.getElementById("manualDisaster").value;
+
+            if (!state || !disaster) {
+                showAlert(document.getElementById("manualAlert"), "❌ Please select state and disaster type", "error");
+                return;
+            }
+
+            const prediction = {
+                id: Date.now(),
+                state: state,
+                disaster: disaster,
+                weather: {
+                    temperature: parseFloat(document.getElementById("manualTemp").value),
+                    humidity: parseFloat(document.getElementById("manualHumidity").value),
+                    rainfall: parseFloat(document.getElementById("manualRainfall").value)
+                },
+                risk_percentage: parseFloat(document.getElementById("manualRiskPercent").value),
+                hf_semantic_score: parseFloat(document.getElementById("manualHFScore").value),
+                confidence: parseFloat(document.getElementById("manualConfidence").value),
+                recommendations: recommendationsList,
+                notes: document.getElementById("manualNotes").value,
+                timestamp: new Date().toLocaleString(),
+                isManual: true
+            };
+
+            overridesData.push(prediction);
+            historyData.push(prediction);
+
+            localStorage.setItem("overrides", JSON.stringify(overridesData));
+            localStorage.setItem("history", JSON.stringify(historyData));
+
+            showAlert(document.getElementById("manualAlert"), "✅ Manual prediction saved successfully!", "success");
+
+            // Clear form
+            document.getElementById("manualState").value = "";
+            document.getElementById("manualDisaster").value = "";
+            document.getElementById("manualTemp").value = "25";
+            document.getElementById("manualHumidity").value = "70";
+            document.getElementById("manualRainfall").value = "0";
+            document.getElementById("manualRiskPercent").value = "50";
+            document.getElementById("manualHFScore").value = "0.5";
+            document.getElementById("manualConfidence").value = "0.85";
+            document.getElementById("manualNotes").value = "";
+            recommendationsList = [];
+            updateRecommendationsList();
+
+            updateDashboard();
+        }
+
+        // ============================================
+        // DASHBOARD
+        // ============================================
+        function loadDashboardData() {
+            overridesData = JSON.parse(localStorage.getItem("overrides")) || [];
+            historyData = JSON.parse(localStorage.getItem("history")) || [];
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            // Update stats
+            document.getElementById("totalOverrides").textContent = overridesData.length;
+            const uniqueStates = new Set(overridesData.map(o => o.state)).size;
+            document.getElementById("statesUpdated").textContent = uniqueStates;
+
+            const critical = overridesData.filter(o => o.risk_percentage >= 75).length;
+            document.getElementById("criticalAlerts").textContent = critical;
+            document.getElementById("activePredictions").textContent = overridesData.length;
+
+            // Update table
+            const table = document.getElementById("overridesTable").getElementsByTagName("tbody")[0];
+            if (overridesData.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #94a3b8;">No overrides yet</td></tr>';
+                return;
+            }
+
+            table.innerHTML = "";
+            overridesData.forEach(override => {
+                const riskClass = getRiskClass(override.risk_percentage);
+                const riskLabel = getRiskLabel(override.risk_percentage);
+
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${override.state}</td>
+                    <td>${override.disaster}</td>
+                    <td><span class="status-badge status-${riskClass}">${riskLabel}</span></td>
+                    <td>${override.risk_percentage.toFixed(1)}%</td>
+                    <td><span class="status-badge status-${riskClass}">Active</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-small btn-edit" onclick="editOverride(${override.id})">✏️</button>
+                            <button class="btn-small btn-delete" onclick="deleteOverride(${override.id})">🗑️</button>
+                        </div>
+                    </td>
+                `;
+            });
+
+            // Update history
+            const historyTable = document.getElementById("historyTable").getElementsByTagName("tbody")[0];
+            if (historyData.length === 0) {
+                historyTable.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #94a3b8;">No history yet</td></tr>';
+                return;
+            }
+
+            historyTable.innerHTML = "";
+            historyData.slice(-10).reverse().forEach(entry => {
+                const row = historyTable.insertRow();
+                row.innerHTML = `
+                    <td>${entry.timestamp}</td>
+                    <td>${entry.state}</td>
+                    <td>${entry.disaster}</td>
+                    <td>${entry.risk_percentage.toFixed(1)}%</td>
+                    <td>${entry.reason || "Manual entry"}</td>
+                    <td>${entry.admin || "Admin"}</td>
+                `;
+            });
+
+            document.getElementById("lastSync").textContent = new Date().toLocaleString();
+        }
+
+        function deleteOverride(id) {
+            if (confirm("Delete this override?")) {
+                overridesData = overridesData.filter(o => o.id !== id);
+                localStorage.setItem("overrides", JSON.stringify(overridesData));
+                updateDashboard();
+            }
+        }
+
+        function editOverride(id) {
+            const override = overridesData.find(o => o.id === id);
+            if (override) {
+                document.getElementById("overrideState").value = override.state;
+                document.getElementById("overrideDisaster").value = override.disaster;
+                document.getElementById("overridePercentage").value = override.risk_percentage;
+                document.getElementById("overrideHFScore").value = override.hf_semantic_score;
+                document.getElementById("overrideConfidence").value = override.confidence;
+                document.getElementById("overrideReason").value = override.reason;
+                deleteOverride(id);
+                switchTab("override");
+            }
+        }
+
+        // ============================================
+        // HELPERS
+        // ============================================
+        function getRiskLabel(percentage) {
+            if (percentage >= 75) return "CRITICAL";
+            if (percentage >= 50) return "WARNING";
+            if (percentage >= 25) return "MODERATE";
+            return "SAFE";
+        }
+
+        function getRiskClass(percentage) {
+            if (percentage >= 75) return "critical";
+            if (percentage >= 50) return "warning";
+            if (percentage >= 25) return "moderate";
+            return "safe";
+        }
+
+        function showAlert(element, message, type) {
+            element.textContent = message;
+            element.className = "alert " + type + " show";
+            setTimeout(() => {
+                element.classList.remove("show");
+            }, 5000);
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener("DOMContentLoaded", function() {
+            loadDashboardData();
+        });
+    </script>
+</body>
+</html>
