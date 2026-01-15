@@ -44,6 +44,17 @@
             font-size: 1.1em;
         }
 
+        .debug-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
         .controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -355,9 +366,113 @@
             margin-bottom: 10px;
         }
 
+        /* DEBUG MODE STYLES */
+        .debug-panel {
+            display: none;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 20px;
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .debug-panel.show {
+            display: block;
+        }
+
+        .debug-panel h2 {
+            color: #ef4444;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .debug-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .debug-section:last-child {
+            border-bottom: none;
+        }
+
+        .debug-label {
+            color: #ef4444;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .debug-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #ef4444;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #7dd3fc;
+        }
+
+        .debug-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .debug-table th {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ef4444;
+            font-weight: 600;
+        }
+
+        .debug-table td {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .debug-table tr:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .debug-json {
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .debug-copy-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .debug-copy-btn:hover {
+            background: #f87070;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
+            }
+
+            .debug-badge {
+                display: block;
+                margin: 10px 0 0 0;
             }
 
             .controls {
@@ -388,6 +503,10 @@
                 font-size: 0.9em;
                 padding: 10px;
             }
+
+            .debug-content {
+                font-size: 0.75em;
+            }
         }
 
         .footer {
@@ -403,7 +522,10 @@
 <body>
     <div class="container">
         <header>
-            <h1>🚨 Disaster Early Warning System</h1>
+            <h1>
+                🚨 Disaster Early Warning System
+                <span class="debug-badge" id="debugBadge" style="display: none;">🐛 DEBUG MODE</span>
+            </h1>
             <p class="subtitle">AI-Powered Risk Assessment for Indian States</p>
         </header>
 
@@ -495,6 +617,73 @@
             </div>
 
             <div class="analysis-details" id="analysisDetails"></div>
+
+            <!-- DEBUG PANEL -->
+            <div class="debug-panel" id="debugPanel">
+                <h2>🐛 DEBUG: Raw API Response</h2>
+
+                <div class="debug-section">
+                    <div class="debug-label">📋 Request Info</div>
+                    <table class="debug-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestDebugTable">
+                            <tr>
+                                <td>API URL</td>
+                                <td id="debugUrl">--</td>
+                            </tr>
+                            <tr>
+                                <td>Status</td>
+                                <td id="debugStatus">--</td>
+                            </tr>
+                            <tr>
+                                <td>Response Time</td>
+                                <td id="debugTime">--</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="debug-section">
+                    <div class="debug-label">📊 All Response Fields</div>
+                    <table class="debug-table">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Value</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fieldsDebugTable">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="debug-section">
+                    <div class="debug-label">🔍 Complete JSON Response</div>
+                    <div class="debug-content debug-json" id="debugJson"></div>
+                    <button class="debug-copy-btn" onclick="copyDebugJson()">📋 Copy JSON</button>
+                </div>
+
+                <div class="debug-section">
+                    <div class="debug-label">🌡️ Weather Object</div>
+                    <div class="debug-content" id="debugWeather"></div>
+                </div>
+
+                <div class="debug-section">
+                    <div class="debug-label">📌 Details Object</div>
+                    <div class="debug-content" id="debugDetails"></div>
+                </div>
+
+                <div class="debug-section">
+                    <div class="debug-label">📝 Recommendations Array</div>
+                    <div class="debug-content" id="debugRecommendations"></div>
+                </div>
+            </div>
         </div>
 
         <div class="footer">
@@ -505,12 +694,25 @@
 
     <script>
         // ============================================
-        // CONFIGURATION - UPDATE THIS FOR YOUR API
+        // CONFIGURATION
         // ============================================
-        // Change this to your Railway API URL
         const API_BASE = "https://hackathon-production-79bd.up.railway.app";
-        // For local testing:
-        // const API_BASE = "http://localhost:8000";
+        let isDebugMode = false;
+        let lastApiResponse = null;
+        let lastFetchTime = 0;
+
+        // ============================================
+        // CHECK DEBUG MODE
+        // ============================================
+        function checkDebugMode() {
+            const params = new URLSearchParams(window.location.search);
+            isDebugMode = params.get('debug') === 'True';
+            
+            if (isDebugMode) {
+                document.getElementById("debugBadge").style.display = "inline-block";
+                console.log("🐛 DEBUG MODE ENABLED");
+            }
+        }
 
         // ============================================
         // STATE
@@ -529,7 +731,6 @@
             });
         });
 
-        // Set default active button
         document.querySelector('[data-disaster="flood"]').classList.add("active");
 
         // ============================================
@@ -559,17 +760,16 @@
             const errorBox = document.getElementById("errorBox");
             const resultsDiv = document.getElementById("results");
 
-            // Show loading, hide errors
             loadingBox.style.display = "block";
             errorBox.classList.remove("show");
             resultsDiv.classList.remove("show");
 
             try {
-                // Build API URL
                 const apiUrl = `${API_BASE}/predict/${selectedState}?disaster_type=${selectedDisaster}`;
                 console.log("Fetching from:", apiUrl);
+                
+                const startTime = performance.now();
 
-                // Fetch with timeout
                 const controller = new AbortController();
                 const timeout = setTimeout(() => controller.abort(), 10000);
 
@@ -582,15 +782,23 @@
                 });
 
                 clearTimeout(timeout);
+                lastFetchTime = performance.now() - startTime;
 
                 if (!response.ok) {
                     throw new Error(`API Error: ${response.status} ${response.statusText}`);
                 }
 
                 const data = await response.json();
+                lastApiResponse = data;
+                
                 console.log("API Response:", data);
 
-                displayResults(data);
+                displayResults(data, apiUrl, response.status);
+                
+                if (isDebugMode) {
+                    showDebugPanel(data, apiUrl, response.status);
+                }
+                
                 loadingBox.style.display = "none";
                 resultsDiv.classList.add("show");
 
@@ -616,8 +824,7 @@
         // ============================================
         // DISPLAY RESULTS
         // ============================================
-        function displayResults(data) {
-            // Risk Level
+        function displayResults(data, apiUrl, status) {
             const riskPct = data.risk_percentage || 0;
             const riskLabel = getRiskLabel(riskPct);
             const riskClass = getRiskClass(riskPct);
@@ -688,8 +895,57 @@
                 ${details.history_factor ? `<p><strong>Historical Factor:</strong> ${(details.history_factor * 100).toFixed(0)}%</p>` : ""}
             `;
 
-            // Timestamp
             document.getElementById("timestamp").textContent = new Date().toLocaleString();
+        }
+
+        // ============================================
+        // DEBUG PANEL
+        // ============================================
+        function showDebugPanel(data, apiUrl, status) {
+            const debugPanel = document.getElementById("debugPanel");
+            debugPanel.classList.add("show");
+
+            // Request info
+            document.getElementById("debugUrl").textContent = apiUrl;
+            document.getElementById("debugStatus").textContent = `${status} OK`;
+            document.getElementById("debugTime").textContent = `${lastFetchTime.toFixed(2)}ms`;
+
+            // All fields table
+            const fieldsTable = document.getElementById("fieldsDebugTable");
+            fieldsTable.innerHTML = "";
+
+            for (const [key, value] of Object.entries(data)) {
+                const row = fieldsTable.insertRow();
+                const type = Array.isArray(value) ? "array" : typeof value;
+                const displayValue = type === "object" ? JSON.stringify(value).substring(0, 50) + "..." : String(value).substring(0, 50);
+                
+                row.innerHTML = `
+                    <td><strong>${key}</strong></td>
+                    <td>${displayValue}</td>
+                    <td><code>${type}</code></td>
+                `;
+            }
+
+            // Complete JSON
+            document.getElementById("debugJson").textContent = JSON.stringify(data, null, 2);
+
+            // Weather object
+            document.getElementById("debugWeather").textContent = JSON.stringify(data.weather || {}, null, 2);
+
+            // Details object
+            document.getElementById("debugDetails").textContent = JSON.stringify(data.details || {}, null, 2);
+
+            // Recommendations array
+            document.getElementById("debugRecommendations").textContent = JSON.stringify(data.recommendations || [], null, 2);
+        }
+
+        function copyDebugJson() {
+            const json = JSON.stringify(lastApiResponse, null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                alert("✅ JSON copied to clipboard!");
+            }).catch(() => {
+                alert("❌ Failed to copy JSON");
+            });
         }
 
         // ============================================
@@ -714,6 +970,13 @@
             errorBox.textContent = "❌ " + message;
             errorBox.classList.add("show");
         }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener("DOMContentLoaded", function() {
+            checkDebugMode();
+        });
     </script>
 </body>
 </html>
