@@ -561,141 +561,156 @@
         <p style="margin-top: 10px; font-size: 0.85rem;">Last updated: <span id="footer-time">--:--:--</span></p>
     </footer>
 
-    <script>
-        const API_URL = 'https://tinkerer-api.vercel.app';
-        const states = [
-            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-            "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
-            "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
-            "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-            "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-            "Andaman & Nicobar", "Chandigarh", "Dadra & Nagar Haveli", "Daman & Diu",
-            "Delhi", "Jammu & Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
-        ];
+<script>
+    const API_URL = 'https://tinkerer-api.vercel.app';
+    const states = [
+        "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+        "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+        "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+        "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+        "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+        "Andaman & Nicobar", "Chandigarh", "Dadra & Nagar Haveli", "Daman & Diu",
+        "Delhi", "Jammu & Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+    ];
 
-        function updateFooterTime() {
-            const now = new Date();
-            document.getElementById('footer-time').textContent = now.toLocaleTimeString('en-IN');
+    function updateFooterTime() {
+        const now = new Date();
+        document.getElementById('footer-time').textContent = now.toLocaleTimeString('en-IN');
+    }
+
+    setInterval(updateFooterTime, 1000);
+    updateFooterTime();
+
+    async function fetchPrediction() {
+        const state = document.getElementById('state-select').value.trim();
+        console.log('Selected state:', state);
+
+        if (!state) {
+            showError('Please select a region');
+            return;
         }
 
-        setInterval(updateFooterTime, 1000);
-        updateFooterTime();
+        showLoading(true);
+        clearError();
 
-        async function fetchPrediction() {
-            const state = document.getElementById('state-select').value;
-            
-            if (!state) {
-                showError('Please select a region');
+        // Log the API URL for diagnosis
+        const apiUrl = `${API_URL}/predict/${encodeURIComponent(state)}`;
+        console.log('Fetching from:', apiUrl);
+
+        try {
+            const response = await fetch(apiUrl);
+            console.log('Fetch response status:', response.status);
+
+            if (!response.ok) {
+                showError(`API error: ${response.status} ${response.statusText}`);
+                showLoading(false);
                 return;
             }
 
-            showLoading(true);
-            clearError();
+            const data = await response.json();
+            console.log('API response:', data);
 
-            try {
-                const response = await fetch(`${API_URL}/predict/${state}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    showError(data.error);
-                    showLoading(false);
-                    return;
-                }
-
-                displayResults(data);
+            if (data.error) {
+                showError(data.error);
                 showLoading(false);
-            } catch (error) {
-                showError('Failed to fetch prediction. Please try again.');
-                showLoading(false);
-            }
-        }
-
-        function displayResults(data) {
-            const mainCard = document.getElementById('main-card');
-            
-            // Region and time
-            document.getElementById('region-name').textContent = data.region;
-            const date = new Date(data.timestamp);
-            document.getElementById('timestamp').textContent = `Last updated: ${date.toLocaleString('en-IN')}`;
-
-            // Primary disaster
-            const primaryDisaster = document.getElementById('primary-disaster');
-            let emoji = '⚠️';
-            if (data.primary_disaster === 'FLOOD') emoji = '🌊';
-            else if (data.primary_disaster === 'HEATWAVE') emoji = '🔥';
-            else if (data.primary_disaster === 'NORMAL') emoji = '✅';
-            
-            primaryDisaster.textContent = `${emoji} ${data.primary_disaster}`;
-            primaryDisaster.className = `primary-disaster ${data.primary_disaster.toLowerCase()}`;
-
-            // Risk badge
-            const badge = document.getElementById('risk-badge');
-            badge.textContent = data.risk_level;
-            badge.className = `risk-level-badge ${data.risk_level.toLowerCase()}`;
-
-            // Metrics
-            const floodPercent = (data.flood_risk * 100).toFixed(0);
-            const heatPercent = (data.heat_risk * 100).toFixed(0);
-
-            document.getElementById('flood-risk').textContent = floodPercent + '%';
-            document.getElementById('heat-risk').textContent = heatPercent + '%';
-            document.getElementById('rainfall').innerHTML = `${data.rainfall_72h_mm}<span class="metric-unit">mm</span>`;
-            document.getElementById('max-temp').innerHTML = `${data.max_temperature}<span class="metric-unit">°C</span>`;
-
-            // Risk bars
-            document.getElementById('flood-bar').style.width = floodPercent + '%';
-            document.getElementById('heat-bar').style.width = heatPercent + '%';
-
-            // Alert info
-            const infoSection = document.getElementById('info-section');
-            const alertText = document.getElementById('alert-text');
-            
-            if (data.risk_level === 'EXTREME') {
-                infoSection.style.display = 'block';
-                alertText.textContent = '🚨 EXTREME RISK ALERT! Immediate precautions recommended. Check official disaster management authorities for guidance.';
-            } else if (data.risk_level === 'HIGH') {
-                infoSection.style.display = 'block';
-                alertText.textContent = '⚠️ HIGH RISK! Stay alert and monitor updates from official sources.';
-            } else {
-                infoSection.style.display = 'none';
+                return;
             }
 
-            mainCard.classList.add('active');
+            displayResults(data);
+            showLoading(false);
+        } catch (error) {
+            console.error('Fetch error:', error);
+            showError('Failed to fetch prediction. Please try again. See console for details.');
+            showLoading(false);
+        }
+    }
 
-            // Populate all states
-            populateAllStates();
+    function displayResults(data) {
+        const mainCard = document.getElementById('main-card');
+
+        // Region and time
+        document.getElementById('region-name').textContent = data.region;
+        const date = new Date(data.timestamp);
+        document.getElementById('timestamp').textContent = `Last updated: ${date.toLocaleString('en-IN')}`;
+
+        // Primary disaster
+        const primaryDisaster = document.getElementById('primary-disaster');
+        let emoji = '⚠️';
+        if (data.primary_disaster === 'FLOOD') emoji = '🌊';
+        else if (data.primary_disaster === 'HEATWAVE') emoji = '🔥';
+        else if (data.primary_disaster === 'NORMAL') emoji = '✅';
+
+        primaryDisaster.textContent = `${emoji} ${data.primary_disaster}`;
+        primaryDisaster.className = `primary-disaster ${data.primary_disaster.toLowerCase()}`;
+
+        // Risk badge
+        const badge = document.getElementById('risk-badge');
+        badge.textContent = data.risk_level;
+        badge.className = `risk-level-badge ${data.risk_level.toLowerCase()}`;
+
+        // Metrics
+        const floodPercent = (data.flood_risk * 100).toFixed(0);
+        const heatPercent = (data.heat_risk * 100).toFixed(0);
+
+        document.getElementById('flood-risk').textContent = floodPercent + '%';
+        document.getElementById('heat-risk').textContent = heatPercent + '%';
+        document.getElementById('rainfall').innerHTML = `${data.rainfall_72h_mm}<span class="metric-unit">mm</span>`;
+        document.getElementById('max-temp').innerHTML = `${data.max_temperature}<span class="metric-unit">°C</span>`;
+
+        // Risk bars
+        document.getElementById('flood-bar').style.width = floodPercent + '%';
+        document.getElementById('heat-bar').style.width = heatPercent + '%';
+
+        // Alert info
+        const infoSection = document.getElementById('info-section');
+        const alertText = document.getElementById('alert-text');
+
+        if (data.risk_level === 'EXTREME') {
+            infoSection.style.display = 'block';
+            alertText.textContent = '🚨 EXTREME RISK ALERT! Immediate precautions recommended. Check official disaster management authorities for guidance.';
+        } else if (data.risk_level === 'HIGH') {
+            infoSection.style.display = 'block';
+            alertText.textContent = '⚠️ HIGH RISK! Stay alert and monitor updates from official sources.';
+        } else {
+            infoSection.style.display = 'none';
         }
 
-        function populateAllStates() {
-            const grid = document.getElementById('states-grid');
-            grid.innerHTML = states.map(state => 
-                `<div class="state-item" onclick="document.getElementById('state-select').value='${state}'; fetchPrediction();">${state}</div>`
-            ).join('');
-        }
+        mainCard.classList.add('active');
 
-        function toggleAllStates() {
-            const grid = document.getElementById('states-grid');
-            grid.classList.toggle('expanded');
-        }
+        // Populate all states
+        populateAllStates();
+    }
 
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-        }
+    function populateAllStates() {
+        const grid = document.getElementById('states-grid');
+        grid.innerHTML = states.map(state =>
+            `<div class="state-item" onclick="document.getElementById('state-select').value='${state}'; fetchPrediction();">${state}</div>`
+        ).join('');
+    }
 
-        function showError(message) {
-            const card = document.getElementById('error-card');
-            card.textContent = '❌ ' + message;
-            card.style.display = 'block';
-        }
+    function toggleAllStates() {
+        const grid = document.getElementById('states-grid');
+        grid.classList.toggle('expanded');
+    }
 
-        function clearError() {
-            document.getElementById('error-card').style.display = 'none';
-        }
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
 
-        // Allow Enter key to search
-        document.getElementById('state-select').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') fetchPrediction();
-        });
-    </script>
+    function showError(message) {
+        const card = document.getElementById('error-card');
+        card.textContent = '❌ ' + message;
+        card.style.display = 'block';
+    }
+
+    function clearError() {
+        document.getElementById('error-card').style.display = 'none';
+    }
+
+    // Allow Enter key to search when select loses focus
+    document.getElementById('state-select').addEventListener('change', (e) => {
+        if (e.target.value) fetchPrediction();
+    });
+</script>
 </body>
 </html>
