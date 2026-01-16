@@ -1,113 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disaster Early Warning Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
-      color: #333;
-    }
-    h1 { text-align: center; color: #2c3e50; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
-    .result { margin-top: 20px; padding: 15px; border-radius: 8px; background: #eaf2f8; }
-    .risk-high { color: red; font-weight: bold; }
-    .risk-medium { color: orange; font-weight: bold; }
-    .risk-low { color: green; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Risk India</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; font-size: 28px; }
+        select { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 30px; }
+        .result { text-align: center; padding: 30px; border-radius: 15px; }
+        .risk { font-size: 48px; font-weight: bold; margin: 20px 0; }
+        .low { color: #28a745; background: #d4edda; } .medium { color: #ffc107; background: #fff3cd; } .high { color: #dc3545; background: #f8d7da; }
+        .actions { background: #f8f9fa; border-radius: 12px; padding: 20px; margin-top: 20px; text-align: left; }
+        .action-item { padding: 10px; margin: 8px 0; background: white; border-radius: 8px; border-left: 4px solid #007bff; }
+        button { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .loading { text-align: center; color: #666; }
+        @media (max-width: 480px) { .container { margin: 10px; padding: 20px; } }
+    </style>
 </head>
 <body>
-
-  <h1>Disaster Early Warning Dashboard</h1>
-
-  <div class="container">
-    <label for="state">Select State:</label>
-    <select id="state">
-      <option value="">-- Select State --</option>
-      <option value="Assam">Assam</option>
-      <option value="Delhi">Delhi</option>
-      <option value="Maharashtra">Maharashtra</option>
-      <option value="Kerala">Kerala</option>
-      <option value="Tamil Nadu">Tamil Nadu</option>
-      <option value="Odisha">Odisha</option>
-      <option value="West Bengal">West Bengal</option>
-      <option value="Gujarat">Gujarat</option>
-      <option value="Rajasthan">Rajasthan</option>
-      <option value="Manipur">Manipur</option>
-      <option value="Goa">Goa</option>
-      <option value="Chhattisgarh">Chhattisgarh</option>
-      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-      <option value="Andhra Pradesh">Andhra Pradesh</option>
-      <option value="Karnataka">Karnataka</option>
-    </select>
-
-    <label for="disaster">Select Disaster Type:</label>
-    <select id="disaster">
-      <option value="">-- Select Disaster --</option>
-      <option value="flood">Flood</option>
-      <option value="cyclone">Cyclone</option>
-      <option value="earthquake">Earthquake</option>
-      <option value="heatwave">Heatwave</option>
-      <option value="landslide">Landslide</option>
-    </select>
-
-    <button id="fetchBtn">Get Disaster Risk</button>
-
-    <div class="result" id="result" style="display:none;">
-      <h2>Risk Details</h2>
-      <p><strong>Risk Percentage:</strong> <span id="risk"></span></p>
-      <p><strong>Confidence:</strong> <span id="confidence"></span></p>
-      <p><strong>HF Semantic Score:</strong> <span id="hf"></span></p>
-      <p><strong>Weather:</strong> <span id="weather"></span></p>
-      <p><strong>Recommendations:</strong> <span id="recommendations"></span></p>
-      <p><small>Sources: <span id="sources"></span></small></p>
-      <p><small>Calculation Time: <span id="time"></span></small></p>
+    <div class="container">
+        <h1>🇮🇳 Disaster Risk Alert</h1>
+        <select id="stateSelect">
+            <option value="">Select State</option>
+            <option value="Assam">Assam</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Maharashtra">Maharashtra</option>
+            <option value="Bihar">Bihar</option>
+            <option value="Uttar Pradesh">Uttar Pradesh</option>
+            <option value="West Bengal">West Bengal</option>
+            <option value="Odisha">Odisha</option>
+            <option value="Andhra Pradesh">Andhra Pradesh</option>
+            <option value="Kerala">Kerala</option>
+            <option value="Tamil Nadu">Tamil Nadu</option>
+            <!-- Add more states -->
+        </select>
+        <button onclick="checkRisk()">Check Risk</button>
+        
+        <div id="result" style="display:none;">
+            <div id="riskDisplay" class="risk"></div>
+            <div id="urgency"></div>
+            <div id="actions" class="actions"></div>
+        </div>
+        <div id="loading" class="loading" style="display:none;">Checking live risk...</div>
     </div>
-  </div>
 
-  <script>
-    const btn = document.getElementById("fetchBtn");
-    const resultDiv = document.getElementById("result");
+    <script>
+        const API_BASE = "YOUR_RAILWAY_URL";  // Replace with your FastAPI URL
+        
+        const SAFETY_ACTIONS = {
+            "flood": ["🚨 Move to higher ground immediately", "Avoid flooded roads/bridges", "Call NDMA: 1078"],
+            "earthquake": ["🛡️ Drop, Cover, Hold On", "Stay away from windows/buildings", "Check gas lines"],
+            "cyclone": ["🌪️ Secure doors/windows", "Move inland if possible", "IMD Cyclone app"],
+            "landslide": ["⛰️ Stay away from slopes", "Clear drainage systems", "Avoid riverbanks"],
+            "heatwave": ["🌡️ Drink water regularly", "Avoid 12-4 PM sun", "Heatline: 1930"]
+        };
 
-    btn.addEventListener("click", async () => {
-      const state = document.getElementById("state").value;
-      const disaster = document.getElementById("disaster").value;
-
-      if (!state || !disaster) {
-        alert("Please select both state and disaster type.");
-        return;
-      }
-
-      try {
-        const res = await fetch(`https://hackathon-test-production-36d0.up.railway.app/predict/${encodeURIComponent(state)}?disaster_type=${disaster}`);
-        if (!res.ok) throw new Error("API request failed");
-        const data = await res.json();
-
-        resultDiv.style.display = "block";
-
-        // Risk color coding
-        let riskClass = "risk-low";
-        if (data.risk_percentage > 70) riskClass = "risk-high";
-        else if (data.risk_percentage > 40) riskClass = "risk-medium";
-
-        document.getElementById("risk").innerHTML = `<span class="${riskClass}">${data.risk_percentage}%</span>`;
-        document.getElementById("confidence").textContent = data.confidence;
-        document.getElementById("hf").textContent = data.hf_semantic_score;
-        document.getElementById("weather").textContent = `Temp: ${data.weather.temperature}°C, Humidity: ${data.weather.humidity}%, Precipitation: ${data.weather.precipitation}, Wind Speed: ${data.weather.wind_speed} m/s`;
-        document.getElementById("recommendations").textContent = data.recommendations.join(", ");
-        document.getElementById("sources").textContent = data.details.sources;
-        document.getElementById("time").textContent = data.details.calculation_time;
-
-      } catch (err) {
-        alert("Error fetching data: " + err.message);
-      }
-    });
-  </script>
-
+        async function checkRisk() {
+            const state = document.getElementById('stateSelect').value;
+            if (!state) return alert('Select a state');
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            try {
+                // Call YOUR FastAPI
+                const response = await fetch(`${API_BASE}/predict/${state}`);
+                const data = await response.json();
+                
+                showResult(data.risk_percentage || 30, state, data);
+            } catch(e) {
+                showResult(50, state, {disaster_type: 'unknown'});
+            }
+        }
+        
+        function showResult(risk, state, data) {
+            document.getElementById('loading').style.display = 'none';
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            
+            const riskEl = document.getElementById('riskDisplay');
+            riskEl.textContent = `${risk}%`;
+            
+            let levelClass = 'low';
+            if (risk > 70) levelClass = 'high';
+            else if (risk > 40) levelClass = 'medium';
+            
+            riskEl.className = `risk ${levelClass}`;
+            document.getElementById('urgency').textContent = `Risk for ${state}`;
+            
+            // Safety actions
+            const actionsEl = document.getElementById('actions');
+            const disasterType = data.disaster_type || 'flood';
+            actionsEl.innerHTML = SAFETY_ACTIONS[disasterType].map(action => 
+                `<div class="action-item">${action}</div>`
+            ).join('');
+        }
+    </script>
 </body>
 </html>
