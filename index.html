@@ -625,8 +625,9 @@
         }
     }
 
-    function displayResults(data) {
+function displayResults(data) {
     const mainCard = document.getElementById('main-card');
+    const pred = data.prediction || {};
 
     // Region and time
     document.getElementById('region-name').textContent = data.region || 'Unknown Region';
@@ -636,8 +637,7 @@
     // Primary disaster
     const primaryDisaster = document.getElementById('primary-disaster');
     let emoji = '⚠️';
-    let disaster = data.primary_disaster || 'UNKNOWN';
-    console.log('primary_disaster:', disaster);
+    let disaster = pred.primary_disaster || 'UNKNOWN';
 
     if (disaster === 'FLOOD') emoji = '🌊';
     else if (disaster === 'HEATWAVE') emoji = '🔥';
@@ -648,20 +648,19 @@
 
     // Risk badge
     const badge = document.getElementById('risk-badge');
-    let risk_level = data.risk_level || 'UNKNOWN';
-    console.log('risk_level:', risk_level);
+    let risk_level = pred.risk_level || 'UNKNOWN';
 
     badge.textContent = risk_level;
     badge.className = `risk-level-badge ${String(risk_level).toLowerCase()}`;
 
     // Metrics (with default fallback)
-    const floodPercent = data.flood_risk !== undefined ? (data.flood_risk * 100).toFixed(0) : '0';
-    const heatPercent = data.heat_risk !== undefined ? (data.heat_risk * 100).toFixed(0) : '0';
+    const floodPercent = pred.flood_risk !== undefined ? (pred.flood_risk * 100).toFixed(0) : '0';
+    const heatPercent = pred.heat_risk !== undefined ? (pred.heat_risk * 100).toFixed(0) : '0';
 
     document.getElementById('flood-risk').textContent = floodPercent + '%';
     document.getElementById('heat-risk').textContent = heatPercent + '%';
-    document.getElementById('rainfall').innerHTML = `${data.rainfall_72h_mm !== undefined ? data.rainfall_72h_mm : 0}<span class="metric-unit">mm</span>`;
-    document.getElementById('max-temp').innerHTML = `${data.max_temperature !== undefined ? data.max_temperature : 0}<span class="metric-unit">°C</span>`;
+    document.getElementById('rainfall').innerHTML = `${pred.rainfall_72h_mm !== undefined ? pred.rainfall_72h_mm : 0}<span class="metric-unit">mm</span>`;
+    document.getElementById('max-temp').innerHTML = `${pred.max_temperature !== undefined ? pred.max_temperature : 0}<span class="metric-unit">°C</span>`;
 
     // Risk bars
     document.getElementById('flood-bar').style.width = floodPercent + '%';
@@ -677,6 +676,9 @@
     } else if (risk_level === 'HIGH') {
         infoSection.style.display = 'block';
         alertText.textContent = '⚠️ HIGH RISK! Stay alert and monitor updates from official sources.';
+    } else if (pred.alert) {
+        infoSection.style.display = 'block';
+        alertText.textContent = pred.alert;
     } else {
         infoSection.style.display = 'none';
     }
