@@ -32,12 +32,6 @@
             border-bottom: 2px solid #38bdf8;
         }
 
-        .center {
-  margin: auto;
-  width: 50%;
-  padding: 10px;
-}
-
         h1 {
             font-size: 2.5em;
             color: #38bdf8;
@@ -464,7 +458,7 @@
         <div class="error" id="errorBox"></div>
 
         <div class="controls">
-            <div class="control-group">
+            <div class="control-group" style="grid-column: 1 / -1;">
                 <label for="stateSelect">📍 Select State:</label>
                 <select id="stateSelect">
                     <option value="">-- Choose a State --</option>
@@ -489,7 +483,7 @@
                 </select>
             </div>
 
-            <button class="predict-btn" id="predictBtn">📊 Get Risk Assessment</button>
+            <button class="predict-btn" id="predictBtn" style="grid-column: 1 / -1;">📊 Get Risk Assessment</button>
         </div>
 
         <div class="loading" id="loadingBox">
@@ -619,27 +613,16 @@
         // ============================================
         // STATE
         // ============================================
-        let selectedDisaster = "flood";
         let selectedState = "";
-
-        // ============================================
-        // DISASTER BUTTON LOGIC
-        // ============================================
-        document.querySelectorAll("[data-disaster]").forEach(btn => {
-            btn.addEventListener("click", function() {
-                document.querySelectorAll("[data-disaster]").forEach(b => b.classList.remove("active"));
-                this.classList.add("active");
-                selectedDisaster = this.dataset.disaster;
-            });
-        });
-
-        document.querySelector('[data-disaster="flood"]').classList.add("active");
 
         // ============================================
         // STATE SELECT
         // ============================================
         document.getElementById("stateSelect").addEventListener("change", function() {
             selectedState = this.value;
+            if (selectedState) {
+                fetchAllDisasters();
+            }
         });
 
         // ============================================
@@ -655,7 +638,7 @@
         });
 
         // ============================================
-        // FETCH ALL DISASTERS
+        // FETCH ALL DISASTERS (Auto-triggered on state select)
         // ============================================
         async function fetchAllDisasters() {
             const loadingBox = document.getElementById("loadingBox");
@@ -692,8 +675,9 @@
 
                 await Promise.all(promises);
 
-                // Display results
-                displayAllResults(results, selectedState);
+                // Display results (use first non-null disaster data as primary)
+                const primaryDisaster = Object.keys(results).find(key => results[key] !== null);
+                displayAllResults(results, selectedState, primaryDisaster || "flood");
                 
                 if (hasErrors) {
                     showErrorDetails(errorMessages);
@@ -712,9 +696,9 @@
         // ============================================
         // DISPLAY ALL RESULTS
         // ============================================
-        function displayAllResults(results, state) {
-            // Weather from selected disaster
-            const selectedData = results[selectedDisaster];
+        function displayAllResults(results, state, primaryDisaster = "flood") {
+            // Weather from primary disaster
+            const selectedData = results[primaryDisaster];
             if (selectedData && selectedData.weather) {
                 const weather = selectedData.weather;
                 document.getElementById("currentTemp").textContent = (weather.temperature || 25).toFixed(1) + "°C";
@@ -759,14 +743,14 @@
                 }
             });
 
-            // Display selected disaster details
+            // Display primary disaster details
             if (selectedData) {
                 const risk = selectedData.risk_percentage || 0;
                 const riskClass = getRiskClass(risk);
                 
                 document.getElementById("selectedRisk").textContent = risk.toFixed(1) + "%";
                 document.getElementById("selectedRisk").className = `score-value ${riskClass}`;
-                document.getElementById("selectedStatus").textContent = getRiskLabel(risk);
+                document.getElementById("selectedStatus").textContent = `${primaryDisaster.charAt(0).toUpperCase() + primaryDisaster.slice(1)} - ${getRiskLabel(risk)}`;
                 document.getElementById("hfScore").textContent = (selectedData.hf_semantic_score || 0).toFixed(2);
                 document.getElementById("hfPercent").textContent = (selectedData.hf_semantic_score * 100 || 0).toFixed(0) + "%";
                 document.getElementById("confidence").textContent = (selectedData.confidence || 0).toFixed(2);
@@ -789,6 +773,7 @@
                 // Analysis details
                 const details = selectedData.details || {};
                 document.getElementById("analysisDetails").innerHTML = `
+                    <p><strong>Primary Disaster:</strong> ${primaryDisaster.toUpperCase()}</p>
                     <p><strong>Sources:</strong> ${details.sources || "Ambee + Open-Meteo + Hugging Face"}</p>
                     <p><strong>Last Updated:</strong> ${details.calculation_time || new Date().toLocaleString()}</p>
                     <p><strong>Confidence:</strong> ${(selectedData.confidence * 100).toFixed(0)}%</p>
