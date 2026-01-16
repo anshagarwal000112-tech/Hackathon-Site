@@ -3,106 +3,699 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disaster Risk India</title>
+    <title>🌍 India Disaster Prediction Dashboard</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; padding: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; margin-bottom: 30px; font-size: 28px; }
-        select { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 30px; }
-        .result { text-align: center; padding: 30px; border-radius: 15px; }
-        .risk { font-size: 48px; font-weight: bold; margin: 20px 0; }
-        .low { color: #28a745; background: #d4edda; } .medium { color: #ffc107; background: #fff3cd; } .high { color: #dc3545; background: #f8d7da; }
-        .actions { background: #f8f9fa; border-radius: 12px; padding: 20px; margin-top: 20px; text-align: left; }
-        .action-item { padding: 10px; margin: 8px 0; background: white; border-radius: 8px; border-left: 4px solid #007bff; }
-        button { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .loading { text-align: center; color: #666; }
-        @media (max-width: 480px) { .container { margin: 10px; padding: 20px; } }
+
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --secondary: #f59e0b;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --dark: #1e293b;
+            --light: #f1f5f9;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f35 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .search-section {
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease 0.2s backwards;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .search-input-group {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input-group label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .search-input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-input-group select:hover {
+            border-color: var(--primary);
+            background: rgba(2, 132, 199, 0.1);
+        }
+
+        .search-input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+        }
+
+        .search-btn {
+            align-self: flex-end;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            animation: fadeInUp 0.6s ease 0.4s backwards;
+        }
+
+        .error-card {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            color: #fca5a5;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .main-card {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .main-card.active {
+            display: block;
+        }
+
+        .region-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #38bdf8;
+        }
+
+        .timestamp {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .primary-disaster {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .primary-disaster.flood {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .primary-disaster.heatwave {
+            background: rgba(234, 88, 12, 0.2);
+            color: #fed7aa;
+        }
+
+        .primary-disaster.normal {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .risk-level-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-left: 10px;
+        }
+
+        .risk-level-badge.extreme {
+            background: var(--danger);
+            color: white;
+        }
+
+        .risk-level-badge.high {
+            background: var(--warning);
+            color: white;
+        }
+
+        .risk-level-badge.medium {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .risk-level-badge.low {
+            background: var(--success);
+            color: white;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            background: rgba(2, 132, 199, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 5px;
+        }
+
+        .metric-unit {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .risk-bar {
+            margin-top: 20px;
+        }
+
+        .risk-bar-label {
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .risk-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .risk-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            background: linear-gradient(90deg, #16a34a 0%, #ea580c 50%, #dc2626 100%);
+        }
+
+        .info-section {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .all-states-btn {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: rgba(2, 132, 199, 0.2);
+            color: #38bdf8;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .all-states-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .states-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .states-grid.expanded {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .state-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .state-item:hover {
+            background: rgba(2, 132, 199, 0.2);
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 1.8rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-input-group {
+                min-width: 100%;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .risk-level-badge {
+                display: block;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🇮🇳 Disaster Risk Alert</h1>
-        <select id="stateSelect">
-            <option value="">Select State</option>
-            <option value="Assam">Assam</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Maharashtra">Maharashtra</option>
-            <option value="Bihar">Bihar</option>
-            <option value="Uttar Pradesh">Uttar Pradesh</option>
-            <option value="West Bengal">West Bengal</option>
-            <option value="Odisha">Odisha</option>
-            <option value="Andhra Pradesh">Andhra Pradesh</option>
-            <option value="Kerala">Kerala</option>
-            <option value="Tamil Nadu">Tamil Nadu</option>
-            <!-- Add more states -->
-        </select>
-        <button onclick="checkRisk()">Check Risk</button>
-        
-        <div id="result" style="display:none;">
-            <div id="riskDisplay" class="risk"></div>
-            <div id="urgency"></div>
-            <div id="actions" class="actions"></div>
+        <header>
+            <h1 class="header-title">🌍 Disaster Prediction</h1>
+            <p class="header-subtitle">Real-time monitoring for India's regions</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-container">
+                <div class="search-input-group">
+                    <label for="state-select">Select Region</label>
+                    <select id="state-select">
+                        <option value="">Choose a state or territory...</option>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                        <option value="Assam">Assam</option>
+                        <option value="Bihar">Bihar</option>
+                        <option value="Chhattisgarh">Chhattisgarh</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="Himachal Pradesh">Himachal Pradesh</option>
+                        <option value="Jharkhand">Jharkhand</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Manipur">Manipur</option>
+                        <option value="Meghalaya">Meghalaya</option>
+                        <option value="Mizoram">Mizoram</option>
+                        <option value="Nagaland">Nagaland</option>
+                        <option value="Odisha">Odisha</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Sikkim">Sikkim</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Telangana">Telangana</option>
+                        <option value="Tripura">Tripura</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Uttarakhand">Uttarakhand</option>
+                        <option value="West Bengal">West Bengal</option>
+                        <option value="Andaman & Nicobar">Andaman & Nicobar</option>
+                        <option value="Chandigarh">Chandigarh</option>
+                        <option value="Dadra & Nagar Haveli">Dadra & Nagar Haveli</option>
+                        <option value="Daman & Diu">Daman & Diu</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+                        <option value="Ladakh">Ladakh</option>
+                        <option value="Lakshadweep">Lakshadweep</option>
+                        <option value="Puducherry">Puducherry</option>
+                    </select>
+                </div>
+                <button class="search-btn" onclick="fetchPrediction()">Get Prediction</button>
+            </div>
         </div>
-        <div id="loading" class="loading" style="display:none;">Checking live risk...</div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px;">Fetching disaster predictions...</p>
+        </div>
+
+        <div class="error-card" id="error-card"></div>
+
+        <div class="results-section">
+            <div class="main-card" id="main-card">
+                <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+                    <div>
+                        <div class="region-name" id="region-name"></div>
+                        <div class="timestamp" id="timestamp"></div>
+                        <div>
+                            <span class="primary-disaster" id="primary-disaster"></span>
+                            <span class="risk-level-badge" id="risk-badge"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">🌊 Flood Risk</div>
+                        <div class="metric-value" id="flood-risk">0%</div>
+                        <div class="risk-bar">
+                            <div class="risk-bar-container">
+                                <div class="risk-bar-fill" id="flood-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">🔥 Heat Risk</div>
+                        <div class="metric-value" id="heat-risk">0%</div>
+                        <div class="risk-bar">
+                            <div class="risk-bar-container">
+                                <div class="risk-bar-fill" id="heat-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">💧 Rainfall (72h)</div>
+                        <div class="metric-value" id="rainfall">0<span class="metric-unit">mm</span></div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">🌡️ Max Temperature</div>
+                        <div class="metric-value" id="max-temp">0<span class="metric-unit">°C</span></div>
+                    </div>
+                </div>
+
+                <div class="info-section" id="info-section" style="display: none;">
+                    <strong>ℹ️ Alert Information</strong><br>
+                    <span id="alert-text"></span>
+                </div>
+
+                <button class="all-states-btn" onclick="toggleAllStates()">📊 Check All Regions</button>
+                <div class="states-grid" id="states-grid"></div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        const API_BASE = "https://hackathon-test-production-36d0.up.railway.app";  // Replace with your FastAPI URL
-        
-        const SAFETY_ACTIONS = {
-            "flood": ["🚨 Move to higher ground immediately", "Avoid flooded roads/bridges", "Call NDMA: 1078"],
-            "earthquake": ["🛡️ Drop, Cover, Hold On", "Stay away from windows/buildings", "Check gas lines"],
-            "cyclone": ["🌪️ Secure doors/windows", "Move inland if possible", "IMD Cyclone app"],
-            "landslide": ["⛰️ Stay away from slopes", "Clear drainage systems", "Avoid riverbanks"],
-            "heatwave": ["🌡️ Drink water regularly", "Avoid 12-4 PM sun", "Heatline: 1930"]
-        };
+    <footer>
+        <p>💡 Powered by Open-Meteo Weather API | Real-time disaster risk assessment for India</p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">Last updated: <span id="footer-time">--:--:--</span></p>
+    </footer>
 
-        async function checkRisk() {
-            const state = document.getElementById('stateSelect').value;
-            if (!state) return alert('Select a state');
+    <script>
+        const API_URL = 'https://hackathon-production-79bd.up.railway.app';
+        const states = [
+            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+            "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+            "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+            "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+            "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+            "Andaman & Nicobar", "Chandigarh", "Dadra & Nagar Haveli", "Daman & Diu",
+            "Delhi", "Jammu & Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+        ];
+
+        function updateFooterTime() {
+            const now = new Date();
+            document.getElementById('footer-time').textContent = now.toLocaleTimeString('en-IN');
+        }
+
+        setInterval(updateFooterTime, 1000);
+        updateFooterTime();
+
+        async function fetchPrediction() {
+            const state = document.getElementById('state-select').value;
             
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('result').style.display = 'none';
-            
+            if (!state) {
+                showError('Please select a region');
+                return;
+            }
+
+            showLoading(true);
+            clearError();
+
             try {
-                // Call YOUR FastAPI
-                const response = await fetch(`${API_BASE}/predict/${state}`);
+                const response = await fetch(`${API_URL}/predict/${state}`);
                 const data = await response.json();
-                
-                showResult(data.risk_percentage || 30, state, data);
-            } catch(e) {
-                showResult(50, state, {disaster_type: 'unknown'});
+
+                if (data.error) {
+                    showError(data.error);
+                    showLoading(false);
+                    return;
+                }
+
+                displayResults(data);
+                showLoading(false);
+            } catch (error) {
+                showError('Failed to fetch prediction. Please try again.');
+                showLoading(false);
             }
         }
-        
-        function showResult(risk, state, data) {
-            document.getElementById('loading').style.display = 'none';
-            const result = document.getElementById('result');
-            result.style.display = 'block';
+
+        function displayResults(data) {
+            const mainCard = document.getElementById('main-card');
             
-            const riskEl = document.getElementById('riskDisplay');
-            riskEl.textContent = `${risk}%`;
+            // Region and time
+            document.getElementById('region-name').textContent = data.region;
+            const date = new Date(data.timestamp);
+            document.getElementById('timestamp').textContent = `Last updated: ${date.toLocaleString('en-IN')}`;
+
+            // Primary disaster
+            const primaryDisaster = document.getElementById('primary-disaster');
+            let emoji = '⚠️';
+            if (data.primary_disaster === 'FLOOD') emoji = '🌊';
+            else if (data.primary_disaster === 'HEATWAVE') emoji = '🔥';
+            else if (data.primary_disaster === 'NORMAL') emoji = '✅';
             
-            let levelClass = 'low';
-            if (risk > 70) levelClass = 'high';
-            else if (risk > 40) levelClass = 'medium';
+            primaryDisaster.textContent = `${emoji} ${data.primary_disaster}`;
+            primaryDisaster.className = `primary-disaster ${data.primary_disaster.toLowerCase()}`;
+
+            // Risk badge
+            const badge = document.getElementById('risk-badge');
+            badge.textContent = data.risk_level;
+            badge.className = `risk-level-badge ${data.risk_level.toLowerCase()}`;
+
+            // Metrics
+            const floodPercent = (data.flood_risk * 100).toFixed(0);
+            const heatPercent = (data.heat_risk * 100).toFixed(0);
+
+            document.getElementById('flood-risk').textContent = floodPercent + '%';
+            document.getElementById('heat-risk').textContent = heatPercent + '%';
+            document.getElementById('rainfall').innerHTML = `${data.rainfall_72h_mm}<span class="metric-unit">mm</span>`;
+            document.getElementById('max-temp').innerHTML = `${data.max_temperature}<span class="metric-unit">°C</span>`;
+
+            // Risk bars
+            document.getElementById('flood-bar').style.width = floodPercent + '%';
+            document.getElementById('heat-bar').style.width = heatPercent + '%';
+
+            // Alert info
+            const infoSection = document.getElementById('info-section');
+            const alertText = document.getElementById('alert-text');
             
-            riskEl.className = `risk ${levelClass}`;
-            document.getElementById('urgency').textContent = `Risk for ${state}`;
-            
-            // Safety actions
-            const actionsEl = document.getElementById('actions');
-            const disasterType = data.disaster_type || 'flood';
-            actionsEl.innerHTML = SAFETY_ACTIONS[disasterType].map(action => 
-                `<div class="action-item">${action}</div>`
+            if (data.risk_level === 'EXTREME') {
+                infoSection.style.display = 'block';
+                alertText.textContent = '🚨 EXTREME RISK ALERT! Immediate precautions recommended. Check official disaster management authorities for guidance.';
+            } else if (data.risk_level === 'HIGH') {
+                infoSection.style.display = 'block';
+                alertText.textContent = '⚠️ HIGH RISK! Stay alert and monitor updates from official sources.';
+            } else {
+                infoSection.style.display = 'none';
+            }
+
+            mainCard.classList.add('active');
+
+            // Populate all states
+            populateAllStates();
+        }
+
+        function populateAllStates() {
+            const grid = document.getElementById('states-grid');
+            grid.innerHTML = states.map(state => 
+                `<div class="state-item" onclick="document.getElementById('state-select').value='${state}'; fetchPrediction();">${state}</div>`
             ).join('');
         }
+
+        function toggleAllStates() {
+            const grid = document.getElementById('states-grid');
+            grid.classList.toggle('expanded');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const card = document.getElementById('error-card');
+            card.textContent = '❌ ' + message;
+            card.style.display = 'block';
+        }
+
+        function clearError() {
+            document.getElementById('error-card').style.display = 'none';
+        }
+
+        // Allow Enter key to search
+        document.getElementById('state-select').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchPrediction();
+        });
     </script>
 </body>
 </html>
