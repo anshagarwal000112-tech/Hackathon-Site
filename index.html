@@ -1,845 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> 🚨 Disaster Early Warning System - India</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f1f5f9;
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 30px 20px;
-            border-bottom: 3px solid #38bdf8;
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(2, 6, 23, 0.8) 100%);
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2);
-        }
-
-        h1 {
-            font-size: 3em;
-            background: linear-gradient(135deg, #38bdf8 0%, #7dd3fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
-            font-weight: 900;
-        }
-
-        .subtitle {
-            color: #cbd5e1;
-            font-size: 1.2em;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
-            border: 1px solid #38bdf8;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        label {
-            color: #38bdf8;
-            font-weight: 600;
-            font-size: 1.1em;
-        }
-
-        select {
-            padding: 12px;
-            background: #1e293b;
-            color: #f1f5f9;
-            border: 2px solid #38bdf8;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        select:hover {
-            background: #334155;
-            border-color: #7dd3fc;
-        }
-
-        select:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-        }
-
-        .disaster-buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            grid-column: 1 / -1;
-        }
-
-        button {
-            padding: 12px;
-            border: 2px solid #38bdf8;
-            background: transparent;
-            color: #f1f5f9;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95em;
-        }
-
-        button:hover {
-            background: #38bdf8;
-            color: #0f172a;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
-        }
-
-        button.active {
-            background: #38bdf8;
-            color: #0f172a;
-            box-shadow: 0 5px 20px rgba(56, 189, 248, 0.6);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .predict-btn {
-            grid-column: 1 / -1;
-            padding: 15px;
-            font-size: 1.1em;
-            background: linear-gradient(135deg, #38bdf8, #0284c7);
-            border: none;
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .predict-btn:hover {
-            background: linear-gradient(135deg, #7dd3fc, #38bdf8);
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2em;
-            color: #38bdf8;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(56, 189, 248, 0.3);
-            border-top-color: #38bdf8;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: rgba(248, 112, 112, 0.2);
-            border: 2px solid #f87070;
-            color: #fca5a5;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .error.show {
-            display: block;
-        }
-
-        .results {
-            display: none;
-            gap: 20px;
-        }
-
-        .results.show {
-            display: grid;
-        }
-
-        .card {
-            background: rgba(30, 41, 59, 0.9);
-            border: 2px solid #38bdf8;
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .risk-card {
-            grid-column: 1 / -1;
-        }
-
-        .risk-level {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .risk-percentage {
-            font-size: 3.5em;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .risk-percentage.critical {
-            color: #f87070;
-        }
-
-        .risk-percentage.warning {
-            color: #fb923c;
-        }
-
-        .risk-percentage.moderate {
-            color: #fbbf24;
-        }
-
-        .risk-percentage.safe {
-            color: #4ade80;
-        }
-
-        .risk-label {
-            font-size: 1.5em;
-            font-weight: 600;
-        }
-
-        .risk-label.critical {
-            color: #f87070;
-        }
-
-        .risk-label.warning {
-            color: #fb923c;
-        }
-
-        .risk-label.moderate {
-            color: #fbbf24;
-        }
-
-        .risk-label.safe {
-            color: #4ade80;
-        }
-
-        .weather-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            grid-column: 1 / -1;
-        }
-
-        .weather-item {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #38bdf8;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .weather-label {
-            color: #94a3b8;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-        }
-
-        .weather-value {
-            color: #38bdf8;
-            font-size: 1.8em;
-            font-weight: 700;
-        }
-
-        .disaster-risks {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            grid-column: 1 / -1;
-        }
-
-        .disaster-card {
-            background: rgba(15, 23, 42, 0.8);
-            border: 2px solid #38bdf8;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .disaster-icon {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .disaster-name {
-            color: #38bdf8;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
-        .disaster-risk {
-            font-size: 2em;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .disaster-risk.critical {
-            color: #f87070;
-        }
-
-        .disaster-risk.warning {
-            color: #fb923c;
-        }
-
-        .disaster-risk.moderate {
-            color: #fbbf24;
-        }
-
-        .disaster-risk.safe {
-            color: #4ade80;
-        }
-
-        .disaster-status {
-            font-size: 0.85em;
-            color: #cbd5e1;
-        }
-
-        .ai-scores {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .score-card {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #38bdf8;
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        .score-label {
-            color: #94a3b8;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-        }
-
-        .score-value {
-            color: #38bdf8;
-            font-size: 2em;
-            font-weight: 700;
-        }
-
-        .score-percent {
-            color: #cbd5e1;
-            font-size: 0.9em;
-        }
-
-        .recommendations {
-            grid-column: 1 / -1;
-        }
-
-        .recommendations h3 {
-            color: #38bdf8;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .recommendation-list {
-            list-style: none;
-        }
-
-        .recommendation-list li {
-            padding: 10px 0;
-            padding-left: 30px;
-            position: relative;
-            color: #cbd5e1;
-            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-        }
-
-        .recommendation-list li:last-child {
-            border-bottom: none;
-        }
-
-        .recommendation-list li::before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #4ade80;
-            font-weight: 700;
-            font-size: 1.2em;
-        }
-
-        .analysis-details {
-            grid-column: 1 / -1;
-            font-size: 0.95em;
-            color: #cbd5e1;
-        }
-
-        .analysis-details h4 {
-            color: #38bdf8;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8em;
-            }
-
-            .controls {
-                grid-template-columns: 1fr;
-            }
-
-            .disaster-buttons {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .disaster-risks {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .weather-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .ai-scores {
-                grid-template-columns: 1fr;
-            }
-
-            .risk-percentage {
-                font-size: 2.5em;
-            }
-
-            button {
-                font-size: 0.85em;
-                padding: 10px;
-            }
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px 0;
-            border-top: 2px solid #38bdf8;
-            color: #94a3b8;
-            font-size: 0.9em;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disaster Early Warning Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h1 { text-align: center; color: #2c3e50; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    .result { margin-top: 20px; padding: 15px; border-radius: 8px; background: #eaf2f8; }
+    .risk-high { color: red; font-weight: bold; }
+    .risk-medium { color: orange; font-weight: bold; }
+    .risk-low { color: green; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚨 Disaster Early Warning System</h1>
-            <p class="subtitle">Real-time AI-Powered Risk Assessment for Indian States</p>
-        </header>
 
-        <div class="error" id="errorBox"></div>
+  <h1>Disaster Early Warning Dashboard</h1>
 
-        <div class="controls">
-            <div class="control-group" style="grid-column: 1 / -1;">
-                <label for="stateSelect">📍 Select State:</label>
-                <select id="stateSelect">
-                    <option value="">-- Choose a State --</option>
-                    <option value="Andhra Pradesh">Andhra Pradesh</option>
-                    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                    <option value="Assam">Assam</option>
-                    <option value="Bihar">Bihar</option>
-                    <option value="Chhattisgarh">Chhattisgarh</option>
-                    <option value="Delhi">Delhi</option>
-                    <option value="Goa">Goa</option>
-                    <option value="Gujarat">Gujarat</option>
-                    <option value="Haryana">Haryana</option>
-                    <option value="Himachal Pradesh">Himachal Pradesh</option>
-                    <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-                    <option value="Jharkhand">Jharkhand</option>
-                    <option value="Karnataka">Karnataka</option>
-                    <option value="Kerala">Kerala</option>
-                    <option value="Ladakh">Ladakh</option>
-                    <option value="Madhya Pradesh">Madhya Pradesh</option>
-                    <option value="Maharashtra">Maharashtra</option>
-                    <option value="Manipur">Manipur</option>
-                    <option value="Meghalaya">Meghalaya</option>
-                    <option value="Mizoram">Mizoram</option>
-                    <option value="Nagaland">Nagaland</option>
-                    <option value="Odisha">Odisha</option>
-                    <option value="Puducherry">Puducherry</option>
-                    <option value="Punjab">Punjab</option>
-                    <option value="Rajasthan">Rajasthan</option>
-                    <option value="Sikkim">Sikkim</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                    <option value="Telangana">Telangana</option>
-                    <option value="Tripura">Tripura</option>
-                    <option value="Uttar Pradesh">Uttar Pradesh</option>
-                    <option value="Uttarakhand">Uttarakhand</option>
-                    <option value="West Bengal">West Bengal</option>
-                </select>
-            </div>
+  <div class="container">
+    <label for="state">Select State:</label>
+    <select id="state">
+      <option value="">-- Select State --</option>
+      <option value="Assam">Assam</option>
+      <option value="Delhi">Delhi</option>
+      <option value="Maharashtra">Maharashtra</option>
+      <option value="Kerala">Kerala</option>
+      <option value="Tamil Nadu">Tamil Nadu</option>
+      <option value="Odisha">Odisha</option>
+      <option value="West Bengal">West Bengal</option>
+      <option value="Gujarat">Gujarat</option>
+      <option value="Rajasthan">Rajasthan</option>
+      <option value="Manipur">Manipur</option>
+      <option value="Goa">Goa</option>
+      <option value="Chhattisgarh">Chhattisgarh</option>
+      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+      <option value="Andhra Pradesh">Andhra Pradesh</option>
+      <option value="Karnataka">Karnataka</option>
+    </select>
 
-            <button class="predict-btn" id="predictBtn" style="grid-column: 1 / -1;">📊 Get Risk Assessment</button>
-        </div>
+    <label for="disaster">Select Disaster Type:</label>
+    <select id="disaster">
+      <option value="">-- Select Disaster --</option>
+      <option value="flood">Flood</option>
+      <option value="cyclone">Cyclone</option>
+      <option value="earthquake">Earthquake</option>
+      <option value="heatwave">Heatwave</option>
+      <option value="landslide">Landslide</option>
+    </select>
 
-        <div class="loading" id="loadingBox">
-            <div class="spinner"></div>
-            <span>Analyzing real-time weather, historical data & AI models...</span>
-        </div>
+    <button id="fetchBtn">Get Disaster Risk</button>
 
-        <div class="results" id="results">
-            <!-- Current Weather Card -->
-            <div class="card weather-grid">
-                <div class="weather-item">
-                    <div class="weather-label">🌡️ Current Temperature</div>
-                    <div class="weather-value" id="currentTemp">--°C</div>
-                </div>
-                <div class="weather-item">
-                    <div class="weather-label">💧 Humidity</div>
-                    <div class="weather-value" id="humidity">--%</div>
-                </div>
-                <div class="weather-item">
-                    <div class="weather-label">🌧️ Rainfall</div>
-                    <div class="weather-value" id="rainfall">--mm</div>
-                </div>
-                <div class="weather-item">
-                    <div class="weather-label">💨 Wind Speed</div>
-                    <div class="weather-value" id="windSpeed">--m/s</div>
-                </div>
-            </div>
-
-            <!-- All Disaster Risks -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <h3 style="color: #38bdf8; margin-bottom: 15px;">🚨 Real-Time Disaster Risks</h3>
-                <div class="disaster-risks">
-                    <div class="disaster-card">
-                        <div class="disaster-icon">🌊</div>
-                        <div class="disaster-name">Flood Risk</div>
-                        <div class="disaster-risk" id="floodRisk">--</div>
-                        <div class="disaster-status" id="floodStatus">Analyzing...</div>
-                    </div>
-                    <div class="disaster-card">
-                        <div class="disaster-icon">🔥</div>
-                        <div class="disaster-name">Heatwave Risk</div>
-                        <div class="disaster-risk" id="heatwaveRisk">--</div>
-                        <div class="disaster-status" id="heatwaveStatus">Analyzing...</div>
-                    </div>
-                    <div class="disaster-card">
-                        <div class="disaster-icon">🪨</div>
-                        <div class="disaster-name">Earthquake Risk</div>
-                        <div class="disaster-risk" id="earthquakeRisk">--</div>
-                        <div class="disaster-status" id="earthquakeStatus">Analyzing...</div>
-                    </div>
-                    <div class="disaster-card">
-                        <div class="disaster-icon">🏔️</div>
-                        <div class="disaster-name">Landslide Risk</div>
-                        <div class="disaster-risk" id="landslideRisk">--</div>
-                        <div class="disaster-status" id="landslideStatus">Analyzing...</div>
-                    </div>
-                    <div class="disaster-card">
-                        <div class="disaster-icon">🌀</div>
-                        <div class="disaster-name">Cyclone Risk</div>
-                        <div class="disaster-risk" id="cycloneRisk">--</div>
-                        <div class="disaster-status" id="cycloneStatus">Analyzing...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Selected Disaster Details -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <h3 style="color: #38bdf8; margin-bottom: 15px;">📊 Selected Disaster Analysis</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                    <div class="score-card">
-                        <div class="score-label">🎯 Risk Level</div>
-                        <div class="score-value" id="selectedRisk">--</div>
-                        <div class="score-percent" id="selectedStatus">Status</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-label">🤗 HF AI Score</div>
-                        <div class="score-value" id="hfScore">--</div>
-                        <div class="score-percent" id="hfPercent">-- %</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-label">🎯 Confidence</div>
-                        <div class="score-value" id="confidence">--</div>
-                        <div class="score-percent" id="confidencePercent">-- %</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recommendations -->
-            <div class="card recommendations">
-                <h3>📋 Recommended Actions:</h3>
-                <ul class="recommendation-list" id="recommendations"></ul>
-            </div>
-
-            <!-- Analysis Details -->
-            <div class="card analysis-details">
-                <h4>🔍 Data Sources & Analysis</h4>
-                <p id="analysisDetails">Real-time data from Ambee Natural Disasters API, Open-Meteo Weather, and Hugging Face AI models</p>
-            </div>
-
-            <!-- Error Messages -->
-            <div class="card" id="errorDetails" style="display: none; border-color: #f87070;">
-                <h4 style="color: #f87070;">⚠️ System Errors & Warnings</h4>
-                <p id="errorContent" style="color: #fca5a5;"></p>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>🤗 Powered by Hugging Face AI | 📡 Ambee Natural Disasters | 🌐 Open-Meteo Weather | ⚡ Real-time Analysis</p>
-            <p>Last updated: <span id="timestamp"></span></p>
-        </div>
+    <div class="result" id="result" style="display:none;">
+      <h2>Risk Details</h2>
+      <p><strong>Risk Percentage:</strong> <span id="risk"></span></p>
+      <p><strong>Confidence:</strong> <span id="confidence"></span></p>
+      <p><strong>HF Semantic Score:</strong> <span id="hf"></span></p>
+      <p><strong>Weather:</strong> <span id="weather"></span></p>
+      <p><strong>Recommendations:</strong> <span id="recommendations"></span></p>
+      <p><small>Sources: <span id="sources"></span></small></p>
+      <p><small>Calculation Time: <span id="time"></span></small></p>
     </div>
+  </div>
 
-    <script>
-        // ============================================
-        // CONFIGURATION
-        // ============================================
-        const API_BASE = "https://hackathon-test-production-36d0.up.railway.app";
+  <script>
+    const btn = document.getElementById("fetchBtn");
+    const resultDiv = document.getElementById("result");
 
-        // ============================================
-        // STATE
-        // ============================================
-        let selectedState = "";
+    btn.addEventListener("click", async () => {
+      const state = document.getElementById("state").value;
+      const disaster = document.getElementById("disaster").value;
 
-        // ============================================
-        // STATE SELECT
-        // ============================================
-        document.getElementById("stateSelect").addEventListener("change", function() {
-            selectedState = this.value;
-            if (selectedState) {
-                fetchAllDisasters();
-            }
-        });
+      if (!state || !disaster) {
+        alert("Please select both state and disaster type.");
+        return;
+      }
 
-        // ============================================
-        // PREDICT BUTTON
-        // ============================================
-        document.getElementById("predictBtn").addEventListener("click", async function() {
-            if (!selectedState) {
-                showError("Please select a state first!");
-                return;
-            }
+      try {
+        const res = await fetch(`https://your-api-domain.com/predict/${encodeURIComponent(state)}?disaster_type=${disaster}`);
+        if (!res.ok) throw new Error("API request failed");
+        const data = await res.json();
 
-            await fetchAllDisasters();
-        });
+        resultDiv.style.display = "block";
 
-        // ============================================
-        // FETCH ALL DISASTERS (Auto-triggered on state select)
-        // ============================================
-        async function fetchAllDisasters() {
-            const loadingBox = document.getElementById("loadingBox");
-            const errorBox = document.getElementById("errorBox");
-            const resultsDiv = document.getElementById("results");
+        // Risk color coding
+        let riskClass = "risk-low";
+        if (data.risk_percentage > 70) riskClass = "risk-high";
+        else if (data.risk_percentage > 40) riskClass = "risk-medium";
 
-            loadingBox.style.display = "block";
-            errorBox.classList.remove("show");
-            resultsDiv.classList.remove("show");
+        document.getElementById("risk").innerHTML = `<span class="${riskClass}">${data.risk_percentage}%</span>`;
+        document.getElementById("confidence").textContent = data.confidence;
+        document.getElementById("hf").textContent = data.hf_semantic_score;
+        document.getElementById("weather").textContent = `Temp: ${data.weather.temperature}°C, Humidity: ${data.weather.humidity}%, Precipitation: ${data.weather.precipitation}, Wind Speed: ${data.weather.wind_speed} m/s`;
+        document.getElementById("recommendations").textContent = data.recommendations.join(", ");
+        document.getElementById("sources").textContent = data.details.sources;
+        document.getElementById("time").textContent = data.details.calculation_time;
 
-            const disasterTypes = ["flood", "heatwave", "earthquake", "landslide", "cyclone"];
-            const results = {};
-            let hasErrors = false;
-            let errorMessages = [];
+      } catch (err) {
+        alert("Error fetching data: " + err.message);
+      }
+    });
+  </script>
 
-            try {
-                // Fetch all disasters in parallel
-                const promises = disasterTypes.map(type =>
-                    fetch(
-  `${API_BASE}/predict/${selectedState}?disaster_type=${type}&t=${Date.now()}`,
-  { cache: "no-store" }
-)
-
-                        .then(r => {
-                            if (!r.ok) throw new Error(`${type}: ${r.status} ${r.statusText}`);
-                            return r.json();
-                        })
-                        .then(data => {
-                            results[type] = data;
-                            return data;
-                        })
-                        .catch(err => {
-                            hasErrors = true;
-                            errorMessages.push(`${type.toUpperCase()}: ${err.message}`);
-                            results[type] = null;
-                        })
-                );
-
-                await Promise.all(promises);
-
-                // Display results (use first non-null disaster data as primary)
-                const primaryDisaster = Object.keys(results).find(key => results[key] !== null);
-                displayAllResults(results, selectedState, primaryDisaster || "flood");
-                
-                if (hasErrors) {
-                    showErrorDetails(errorMessages);
-                }
-
-                loadingBox.style.display = "none";
-                resultsDiv.classList.add("show");
-
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                loadingBox.style.display = "none";
-                showError(`Failed to fetch predictions: ${error.message}`);
-            }
-        }
-
-        // ============================================
-        // DISPLAY ALL RESULTS
-        // ============================================
-        function displayAllResults(results, state, primaryDisaster = "flood") {
-            // Weather from primary disaster
-            const selectedData = results[primaryDisaster];
-            if (selectedData && selectedData.weather) {
-                const weather = selectedData.weather;
-                document.getElementById("currentTemp").textContent = (weather.temperature || 25).toFixed(1) + "°C";
-                document.getElementById("humidity").textContent = (weather.humidity || 60).toFixed(0) + "%";
-                document.getElementById("rainfall").textContent = (weather.precipitation || 0).toFixed(1) + "mm";
-                document.getElementById("windSpeed").textContent = (weather.wind_speed || 5).toFixed(1) + "m/s";
-                
-                // Min/Max from forecast
-                if (weather.forecast_summary && weather.forecast_summary.length > 0) {
-                    const today = weather.forecast_summary[0];                }
-            }
-
-            // Display all disaster risks
-            const disasterTypes = ["flood", "heatwave", "earthquake", "landslide", "cyclone"];
-            const disasterEmojis = {
-                flood: "🌊",
-                heatwave: "🔥",
-                earthquake: "🪨",
-                landslide: "🏔️",
-                cyclone: "🌀"
-            };
-
-            disasterTypes.forEach(type => {
-                const data = results[type];
-                const riskElement = document.getElementById(`${type}Risk`);
-                const statusElement = document.getElementById(`${type}Status`);
-
-                if (data) {
-                    const risk = data.risk_percentage || 0;
-                    const riskClass = getRiskClass(risk);
-                    
-                    riskElement.textContent = risk.toFixed(1) + "%";
-                    riskElement.className = `disaster-risk ${riskClass}`;
-                    statusElement.textContent = getRiskLabel(risk);
-                } else {
-                    riskElement.textContent = "ERROR";
-                    riskElement.className = "disaster-risk";
-                    statusElement.textContent = "Failed to fetch";
-                }
-            });
-
-            // Display primary disaster details
-            if (selectedData) {
-                const risk = selectedData.risk_percentage || 0;
-                const riskClass = getRiskClass(risk);
-                
-                document.getElementById("selectedRisk").textContent = risk.toFixed(1) + "%";
-                document.getElementById("selectedRisk").className = `score-value ${riskClass}`;
-                document.getElementById("selectedStatus").textContent = `${primaryDisaster.charAt(0).toUpperCase() + primaryDisaster.slice(1)} - ${getRiskLabel(risk)}`;
-                document.getElementById("hfScore").textContent = (selectedData.hf_semantic_score || 0).toFixed(2);
-                document.getElementById("hfPercent").textContent = (selectedData.hf_semantic_score * 100 || 0).toFixed(0) + "%";
-                document.getElementById("confidence").textContent = (selectedData.confidence || 0).toFixed(2);
-                document.getElementById("confidencePercent").textContent = (selectedData.confidence * 100 || 0).toFixed(0) + "%";
-
-                // Recommendations
-                const recList = document.getElementById("recommendations");
-                recList.innerHTML = "";
-                const recommendations = selectedData.recommendations || [];
-                if (recommendations.length === 0) {
-                    recList.innerHTML = "<li style='color: #94a3b8;'>Monitoring situation...</li>";
-                } else {
-                    recommendations.forEach(rec => {
-                        const li = document.createElement("li");
-                        li.textContent = rec;
-                        recList.appendChild(li);
-                    });
-                }
-
-                // Analysis details
-                const details = selectedData.details || {};
-                document.getElementById("analysisDetails").innerHTML = `
-                    <p><strong>Primary Disaster:</strong> ${primaryDisaster.toUpperCase()}</p>
-                    <p><strong>Sources:</strong> ${details.sources || "Ambee + Open-Meteo + Hugging Face"}</p>
-                    <p><strong>Last Updated:</strong> ${details.calculation_time || new Date().toLocaleString()}</p>
-                    <p><strong>Confidence:</strong> ${(selectedData.confidence * 100).toFixed(0)}%</p>
-                `;
-            }
-
-            document.getElementById("timestamp").textContent = new Date().toLocaleString();
-        }
-
-        // ============================================
-        // ERROR HANDLING
-        // ============================================
-        function showError(message) {
-            const errorBox = document.getElementById("errorBox");
-            errorBox.textContent = "❌ " + message;
-            errorBox.classList.add("show");
-        }
-
-        function showErrorDetails(errors) {
-            const errorDetails = document.getElementById("errorDetails");
-            const errorContent = document.getElementById("errorContent");
-            
-            if (errors && errors.length > 0) {
-                errorDetails.style.display = "block";
-                errorContent.innerHTML = errors.map(e => `⚠️ ${e}`).join("<br>");
-            }
-        }
-
-        // ============================================
-        // HELPER FUNCTIONS
-        // ============================================
-        function getRiskLabel(percentage) {
-            if (percentage >= 75) return "🚨 CRITICAL";
-            if (percentage >= 50) return "⚠️ WARNING";
-            if (percentage >= 25) return "⚡ MODERATE";
-            return "✅ SAFE";
-        }
-
-        function getRiskClass(percentage) {
-            if (percentage >= 75) return "critical";
-            if (percentage >= 50) return "warning";
-            if (percentage >= 25) return "moderate";
-            return "safe";
-        }
-        setInterval(() => {
-  if (selectedState) {
-    fetchAllDisasters();
-  }
-}, 60000); // every 60 seconds
-
-    </script>
 </body>
 </html>
