@@ -84,7 +84,7 @@
       }
 
       try {
-        const res = await fetch(`https://your-api-domain.com/predict/${encodeURIComponent(state)}?disaster_type=${disaster}`);
+        const res = await fetch(`https://hackathon-test-production-36d0.up.railway.app/predict/${encodeURIComponent(state)}?disaster_type=${disaster}`);
         if (!res.ok) throw new Error("API request failed");
         const data = await res.json();
 
